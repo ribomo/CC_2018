@@ -18,7 +18,8 @@ class App extends Component {
       value: '', 
       result: '',
       username: '',
-      password: ''
+      password: '',
+      loggedIn: false
     }
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -153,6 +154,7 @@ class App extends Component {
   handleLogin = (event)=>{
     event.preventDefault();
     this.login(this.state.username, this.state.password)
+    this.setState({loggedIn: true})
   }
   
   handleSignup = (event)=>{
@@ -163,15 +165,29 @@ class App extends Component {
   render() {
     return (
       <div className="main-app">
-        <form onSubmit={this.handleLogin}>
+        <section className="hero is-primary">
+            <div className="hero-body">
+              <div className="container">
+                <h1 className="title">
+                  A chat bot
+                </h1>
+                <h2 className="subtitle">
+                  Cloud Computing 6998 2018
+                </h2>
+              </div>
+            </div>
+        </section>
+        <hr/>
+        <div className="container">
+          {this.state.loggedIn > 0 &&
+            <h3 class="title is-3" >You have logged in</h3>
+          }
+          <form onSubmit={this.handleLogin}>
           <div className="field">
-          <p className="control has-icons-left has-icons-right">
+          <p className="control has-icons-left">
             <input className="input" type="text" placeholder="username" name="username" value={this.state.username} onChange={this.handleInputChange}/>
             <span className="icon is-small is-left">
-              <i className="fas fa-envelope"></i>
-            </span>
-            <span className="icon is-small is-right">
-              <i className="fas fa-check"></i>
+              <i className="fas fa-user"></i>
             </span>
           </p>
         </div>
@@ -183,30 +199,42 @@ class App extends Component {
             </span>
           </p>
         </div>
-        <div className="field">
+        <div className="field is-grouped">
           <p className="control">
             <button className="button is-success">
               Login
             </button>
+          </p>
+          <p className="control">
             <button className="button is-success" onClick={this.handleSignup}>
-              Signup
+                Signup
             </button>
           </p>
         </div>
         </form>
-
-
-        <p>
-          Try "Hello" or "Nihao" or other whatever you want
-        </p>
+        </div>
+        <hr/>
+        <div className="container">
+          <h2 className="title is-2">{this.state.result}</h2>
           <form onSubmit={this.handleSubmit}>
-            <label>
+              <div className="control">
+                <label className="label">Talk to it:</label>
+              </div>
+              <div className="field is-grouped">
+                <div className="control">
+                  <input className="input" type="text" value={this.state.value} onChange={this.handleChange} disabled={!this.state.loggedIn}/>
+                </div>
+                <p className="control">
+                  <input className="button is-info" type="submit" value="Submit" disabled={!this.state.loggedIn}/>
+                </p>
+              </div>
+            {/* <label>
               Name:
               <input type="text" value={this.state.value} onChange={this.handleChange}/>
             </label>
-            <input type="submit" value="Submit" />
+            <input type="submit" value="Submit" /> */}
           </form>
-          <p>{this.state.result}</p>
+          </div>
       </div>
     );
   }
