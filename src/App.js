@@ -32,7 +32,7 @@ class App extends Component {
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
-    // this.handleLogin = this.handleLogin.bind(this);
+    this.handlePhotoQuery = this.handlePhotoQuery.bind(this);
   }
 
   handleChange(event) {
@@ -60,10 +60,32 @@ class App extends Component {
 
   handleUpload = (e) => {
     e.preventDefault();
+
+    var s3 = new AWS.S3({
+      params: {Bucket: "photos-hw3-virginia"},
+      endpoint: "https://8yy5i9xx32.execute-api.us-east-1.amazonaws.com/test/upload",
+      s3BucketEndpoint: true
+    });
+
+    let file = this.state.file;
+    let fileName = file.name;
+
+    s3.upload({
+      Key: fileName,
+      Body: file,
+      ContentType: file.type,
+      ACL: 'public-read'
+    }, (err, data) =>{
+      if (err) {
+        return alert('There was an error uploading your photo: ', err.message);
+      }
+      alert('Successfully uploaded photo.');
+    });
+
     let data = this.state.imagePreviewUrl;
-    // var formData = new FormData();
-    // let load = JSON.stringify({user_avatar: data})
-    console.log(data);
+    var formData = new FormData();
+    let load = JSON.stringify({user_avatar: data})
+    // console.log(data);
     // console.log('handle uploading-', this.state.file, this.state.imagePreviewUrl);
     axios.put('https://7xe94za154.execute-api.us-east-1.amazonaws.com/default/upload',
       { user_avatar: data, filename: this.state.file.name })
@@ -196,6 +218,7 @@ class App extends Component {
     event.preventDefault();
     Helper.signup(this.state.username, this.state.password)
   }
+
   handleImageChange = (e) => {
     e.preventDefault();
 
@@ -215,30 +238,35 @@ class App extends Component {
 
   }
 
-  handlePhotoQuery = (e) => {
+  handlePhotoQuery(e) {
     e.preventDefault();
 
     var config = {
-      invokeUrl: 'https://7xe94za154.execute-api.us-east-1.amazonaws.com',
+      invokeUrl: 'https://8yy5i9xx32.execute-api.us-east-1.amazonaws.com',
       // apiKey: 'BGlBOG8E4u1BvGrMGLYyN2Zc2VOuCafgIUGD3bt3',
       accessKey: AWS.config.credentials.accessKeyId,
       secretKey: AWS.config.credentials.secretAccessKey,
       sessionToken: AWS.config.credentials.sessionToken,
       region: 'us-east-1'
     }
-    console.log(config)
+    // console.log(AWS.config.credentials)
+    // console.log(config)
     var apigClient = apigClientFactory.newClient(config);
     var pathParams = {
       //This is where path request params go. 
     };
-    var pathTemplate = '/default/search-photos?q=' + this.state.photoQuery;
+    // this.state.photoQuery
+    var pathTemplate = '/test/search';
+    // console.log(pathTemplate)
     var method = 'GET';
     var body = {
       //This is where you define the body of the request
     };
-    var additionalParams = {
-
-    }
+      var additionalParams = {
+        queryParams: {
+          q: this.state.photoQuery
+        }
+      }
     apigClient.invokeApi(pathParams, pathTemplate, method, additionalParams, body)
       .then((result) => {
         //This is where you would put a success callback
